@@ -1,0 +1,181 @@
+---
+title: "Machine Learning Classification Template"
+author: "John F Adamek"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library()
+library()
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.height = 3.5,
+                      fig.width = 6,
+                      linewidth = 80)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+```
+
+
+# Introduction
+
+- Remember to filter out the DV in teh train set
+
+
+# Input Data
+
+```{r}
+Train_data <- read_csv("")
+Test_data <- read_csv("")
+
+DV <- Train_data[, "DV"]
+
+```
+
+
+# Correlation
+
+```{r}
+# Correlations among variables
+source("C:/Users/HP/Box/R_codes/correlation_matrix.R") 
+# Run correlation matrix
+cor_matrix <- as.data.frame(correlation_matrix(Train_data, digits = 2, use = 'lower', replace_diagonal = TRUE))
+```
+
+
+## Decision Tree
+
+1. Split the data
+2. Train the tree
+3. Make predictions 
+4. Check accuracy
+5. Plot it
+
+```{r}
+# Split Train Data 
+set.seed(27)
+split = sample.split(Train_data$DV, SplitRatio = 0.75)
+##Training & Test set
+training_set = subset(Train_data, split == TRUE)
+test_set = subset(Train_data, split == FALSE)
+
+# Training Tree
+DT_training <- tree(DV ~ ., data = training_set)
+##View Tree
+summary(DT_training)
+
+# Make predictions on the test set
+tree.pred = predict(DT_training, test_set[, -DV], type="class")
+
+# Accuracy
+dt_acc <- confusionMatrix(table(tree.pred, test_set$DV))$overall[1]
+
+# Plot the decison Tree
+plot(DT_training)
+text(DT_training, cex= 1.1)
+mtext("Decision Tree of the Total Training Set", line = 1, cex = 1.5)
+
+```
+
+
+# K-Nearest Neighbor
+
+1. First normalize the data
+2. Split Data
+3. Build KNN
+4. Check Accuracy
+
+
+```{r}
+# Normalize function
+normfun <- function(x){
+  return((x - min(x)) / (max(x) - min(x)))
+}
+
+# Split Train Data 
+train.knn <- as.data.frame(lapply(Train_data[, -DV], normfun)) # Make sure Train_data only contains IV's
+train.knn$DV <- Train_data$DV
+set.seed(27)
+split <- sample.split(train.knn$DV, SplitRatio = 0.75)
+training_set <- subset(train.knn, split == TRUE)
+test_set <- subset(train.knn, split == FALSE)
+
+# Build KNN Model
+knn.M = knn(train = training_set[, -DV],
+              test = test_set[, -DV],
+              cl = training_set[, DV],
+              k = 3,
+              prob = TRUE)
+
+
+# Model Evaluation
+knn_acc <- confusionMatrix(table(knn.M, test_set[, DV]))$overall[1]
+```
+
+
+# SVM
+
+1. Split Data
+2. Build KNN
+3. Check Accuracy
+
+```{r}
+# Split Train Data  
+split = sample.split(Train_data$DV, SplitRatio = 0.75)
+training_set = subset(Train_data, split == TRUE)
+test_set = subset(Train_data, split == FALSE)
+
+# Fit the model - Multiple Classes
+svm.m = svm(formula = DV ~ .,
+         data = training_set[, -DV], # Make sure Train_data only contains IV's
+         type = 'C-classification',
+         kernel = 'radial')
+# Fit the model - Binary Classes
+svm.m = svm(formula = DV ~ .,
+         data = training_set[, -DV], # Make sure Train_data only contains IV's
+         type = 'C-classification',
+         kernel = 'linear')
+
+# Model Evaluation: Predict on test set 
+y_pred <- predict(svm.m, test_set[, -DV])
+## Accuracy: Confusion Matrix
+svm_acc <- confusionMatrix(table(y_pred, test_set$DV))$overall[1]
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,24 @@
+---
+title: "Main Template"
+author: "John F Adamek"
+date: "`r Sys.Date()`"
+output: output_format
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.height = 3.5,
+                      fig.width = 6)
+library(tidyverse)
+```
+
+## Use this as my main man
+
+# Introduction
+
+# Data Pre Processing/Cleanning
+
+
+# Analysis

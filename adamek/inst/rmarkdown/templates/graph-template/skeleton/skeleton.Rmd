@@ -1,0 +1,111 @@
+---
+title: "Template Title"
+author: "Your Name"
+date: "The Date"
+output: output_format
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tables in Knit
+
+- Columns: Determined by names separated by &. Below 'Variables' and 'Description' are the 2 columns
+- Rows: Defined under the second \hline and separated by &
+
+\begin{table}[h]
+    \centering
+    \caption{Pitch Classification Dataset}
+    \begin{tabular}{l c}
+    \hline
+    Variables & Description \\
+    \hline
+    pitchid & a unique identifier for each pitch \\
+    pitcherid & identity of the pitcher (1-6) \\
+    yearid & year in which the pitch occurred (1-3) \\
+    height (in) & height in inches of the pitcher \\
+    initspeed (MPH) & initial speed of the pitch as it leaves the pitcher's hand \\
+    breakx (in) & horizontal distance where a pitch crossed the plate in relation to a hypothetical spinless pitch \\
+    breakz (in) & vertical distance where a pitch crossed the plate in relation to a hypothetical spinless pitch  \\
+    initposx (ft) & horizontal position of the release point of the pitch \\
+    initposz (ft) & vertical position of the release point of the pitch \\
+    extension (ft) & distance in front of the pitching rubber the pitcher releases the ball \\
+    spinrate (RPM) & how fast the ball is spinning as it leaves the pitcher's hand \\
+    type & type of pitch that was thrown \\
+    \hline
+    \end{tabular}
+    \label{tab:my_label}
+\end{table}
+
+
+
+
+\begin{table}[h]
+    \centering
+    \caption{Predicted Model Decision}
+    \begin{tabular}{l c}
+    \hline
+    Variables & Description \\
+    \hline
+    Pitcher 1 & K-NN: Pitcher specific model \\
+    Pitcher 2 & K-NN: Pitcher specific model \\
+    Pitcher 3 & SVM: Total model \\
+    Pitcher 4 & K-NN: Pitcher specific model \\
+    Pitcher 5 & K-NN: Pitcher specific model \\
+    Pitcher 6 & SVM: Total model \\
+    \hline
+    \end{tabular}
+    \label{tab:my_label}
+\end{table}
+
+
+# GGplot
+
+```{r}
+# Adamek_NYY.Rmd in box - jobapplication
+ggplot(train) +
+  geom_point(mapping = aes(x=initspeed, y= spinrate, color = type)) +
+  xlab("MPH") +
+  ylab("SpinRate") +
+  ggtitle("Visualization of MPH vs Spinrate for Pitch Types") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(train, aes(initspeed, breakx, color = type))+
+  geom_point()+
+  ggtitle("Visualization of MPH vs Horizontal Break")+
+  xlab("MPH")+
+  ylab("Horizontal Break") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+
+# Kable Tables
+
+```{r}
+# Adamek.NYY
+knnmodel <- data.frame(Model = c('Total Model', 'Pitcher1', 'Pitcher2', 'Pitcher3', 'Pitcher4', 'Pitcher5'),
+                 Accuracy = c(am,m1,m2,m3,m4,m5))
+knitr::kable(knnmodel, align = "c", caption = 'K-NN Model Performance', digits = 2) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position") 
+```
+
+
+```{r}
+# Table Comparing Models
+comp <- data.frame("Total Model" = as.numeric(c(t(dtmodel)[2], t(knnmodel)[2], svmmodel[1,2])),
+                 "Pitcher 1" = as.numeric(c(t(dtmodel)[4], t(knnmodel)[4], '')),
+                 "Pitcher 2" = as.numeric(c(t(dtmodel)[6], t(knnmodel)[6], '')),
+                 "Pitcher 3" = as.numeric(c(t(dtmodel)[8], t(knnmodel)[8], '')),
+                 "Pitcher 4" = as.numeric(c(t(dtmodel)[10], t(knnmodel)[10], '')),
+                 "Pitcher 5" = as.numeric(c(t(dtmodel)[12], t(knnmodel)[12], '')))
+
+rownames(comp) <- c("Decision Tree Model", "K-NN Model", 'SVM Model')
+
+# Kable Comparing Models
+knitr::kable(comp, align = "c", caption = 'Comparing Model Performance', digits = 2) %>% 
+  kableExtra::kable_styling(latex_options = "HOLD_position") 
+```
+
+
